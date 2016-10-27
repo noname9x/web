@@ -1,6 +1,6 @@
 <node>
-  <div if={ !opts.end }>
-    <node end="true"/>
+  <div each={ child in opts.tree.children }>
+    <node tree={child}/>
   </div>
-  <p if={ opts.end }>END!</p>
+  <div each={ opts.tree.children ? [] : [1]}>abcdefghij</div>
 </node>

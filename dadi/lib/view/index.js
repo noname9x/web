@@ -37,6 +37,11 @@ View.prototype.render = function (req, res) {
 
       break
 
+    case 'preact':
+      this.renderPreact(req, res)
+
+      break      
+
     case 'riot':
       this.renderRiot(req, res)
 
@@ -69,6 +74,25 @@ View.prototype.renderReact = function (req, res) {
     .pipe(res)
 }
 
+View.prototype.renderPreact = function (req, res) {
+  var RecursiveDivs = require(__dirname + '/../../../frontendTest/RecursiveDivs-preact')
+  
+  const Component = require('preact').Component
+  const h = require('preact').h
+  var render = require('preact-render-to-string')
+
+  var rootEl = h(RecursiveDivs, {
+    depth: DEPTH,
+    breadth: BREADTH
+  })
+
+  console.time('renderPreact (last byte)')
+  const html = render(rootEl)
+  console.timeEnd('renderPreact (last byte)')
+
+  res.end(html)
+}
+
 View.prototype.renderDust = function (req, res) {
   var tree = require(__dirname + '/../../../frontendTest/generateTree')(DEPTH, BREADTH, 'abcdefghij')
   var running = false
@@ -97,7 +121,9 @@ View.prototype.renderRiot = function (req, res) {
 
   var nodeTag = require(__dirname + '/../../../frontendTest/node.tag')
 
-  const output = riot.render(nodeTag, {end: true})
+  console.time('renderRiot (last byte)')
+  const output = riot.render(nodeTag, {tree: tree})
+  console.timeEnd('renderRiot (last byte)')
 
   dust.getEngine().render('benchmark-riot', {content: output}, (err, out) => {
     res.end(out)
